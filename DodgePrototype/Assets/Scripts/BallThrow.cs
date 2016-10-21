@@ -6,11 +6,7 @@ public class BallThrow : MonoBehaviour {
 	private Rigidbody body;
 	private Transform target;
 
-	public float velocity;
-	public float distance;
-	public Vector3 direction;
-	public Vector3 directionThrow;
-	public float scale;
+	private float gravity = 9.8f;
 
 	// Use this for initialization
 	void Start () {
@@ -21,28 +17,27 @@ public class BallThrow : MonoBehaviour {
 		ThrowBall();
 	}
 
+	void Update (){
+
+		if (transform.position.y < -10) {
+			Destroy (this.gameObject);
+		}
+	}
+
 	void ThrowBall (){
 
 		// Calculate direction and distance of target
-		direction = (target.position - transform.position).normalized;
-		distance = Vector3.Distance(transform.position, target.transform.position);
+		Vector3 direction = (target.position - transform.position).normalized;
+		float distance = Vector3.Distance(transform.position, target.transform.position);
 
 		// Decide a firing angle based on distance (for now use 45)
 		float theta = 45.0f;
+		direction.y = (theta / 90.0f);
 
-		// Calculate velocity required to hit target
-		velocity = Mathf.Sqrt(distance / (Mathf.Sin(2 * theta * Mathf.Deg2Rad) / 9.8f));
+		// Calculate velocity required to hit target (Range equation)
+		float velocity = Mathf.Sqrt(gravity * distance / (Mathf.Sin(2 * theta * Mathf.Deg2Rad)));
 
-		// Horizontal and Vertical components of velocity
-		float Vy = velocity * Mathf.Sin(theta * Mathf.Deg2Rad);
-		float Vx = velocity * Mathf.Cos(theta * Mathf.Deg2Rad);
-		
-		// X and Z components
-		//float Vx = velocity_h * Mathf.Cos(theta * Mathf.Deg2Rad);
-		//float Vz = velocity_h * Mathf.Sin(theta * Mathf.Deg2Rad);
-
-		// Direction of throw = Velocity required to hit target
-		directionThrow = new Vector3(Vx, Vy, 0);
-		body.AddForce(directionThrow * velocity * scale);
+		// Direction of throw * Velocity required to hit target
+		body.AddForce(direction * velocity * 50.0f);
 	}
 }
